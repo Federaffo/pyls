@@ -1,7 +1,7 @@
 import json
 import pytest
 from unittest.mock import patch, mock_open
-from pyls import main  # Adjust the import based on your actual file structure
+from pyls import human_readable, main  # Adjust the import based on your actual file structure
 
 # Sample data to be used in tests, based on the provided structure.json
 mock_filesystem = {
@@ -75,3 +75,46 @@ def test_main_filter_files():
         patch("builtins.print") as mock_print:
         main(all=False, long=False, reversed=False, time_ordered=False, filter="file")
         mock_print.assert_called_once_with("LICENSE README.md go.mod main.go ")
+
+def test_human_readable():
+    assert human_readable(1024) == "1K"
+    assert human_readable(2048) == "2K"
+    assert human_readable(1048576) == "1M"
+    assert human_readable(1234567890) == "1.1G"
+
+def test_main_filter_directories():
+    with patch("builtins.open", mock_open(read_data=json.dumps(mock_filesystem))), \
+        patch("builtins.print") as mock_print:
+        main(all=False, long=False, reversed=False, time_ordered=False, filter="dir")
+        mock_print.assert_called_once_with("ast lexer parser token ")
+
+def test_main_long_listing():
+    with patch("builtins.open", mock_open(read_data=json.dumps(mock_filesystem))), \
+        patch("builtins.print") as mock_print:
+        main(all=False, long=True, reversed=False, time_ordered=False, filter="")
+        mock_print.assert_called_once_with(
+            "drwxr-xr-x  1.0K Nov 14 06:57 LICENSE\n"
+            "drwxr-xr-x    83 Nov 14 06:57 README.md\n"
+            "-rw-r--r--    4K Nov 14 11:28 ast\n"
+            "drwxr-xr-x    60 Nov 14 09:21 go.mod\n"
+            "drwxr-xr-x    4K Nov 14 10:51 lexer\n"
+            "-rw-r--r--    74 Nov 14 09:27 main.go\n"
+            "drwxr-xr-x    4K Nov 17 08:21 parser\n"
+            "-rw-r--r--    4K Nov 14 10:27 token\n"
+        )
+
+def test_main_reversed_order():
+    with patch("builtins.open", mock_open(read_data=json.dumps(mock_filesystem))), \
+        patch("builtins.print") as mock_print:
+        main(all=False, long=False, reversed=True, time_ordered=False, filter="")
+        mock_print.assert_called_once_with(
+            "token parser main.go lexer go.mod ast README.md LICENSE "
+        )
+
+def test_main_time_ordered():
+    with patch("builtins.open", mock_open(read_data=json.dumps(mock_filesystem))), \
+        patch("builtins.print") as mock_print:
+        main(all=False, long=False, reversed=False, time_ordered=True, filter="")
+        mock_print.assert_called_once_with(
+            "LICENSE README.md go.mod main.go token lexer ast parser "
+        )
