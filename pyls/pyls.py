@@ -17,7 +17,11 @@ def human_readable(size: int) -> str:
 
 def load_filesystem(path: str) -> Dict[str, any]:
     """Load the filesystem structure from a JSON file."""
-    with open(path) as file:
+    # Get the directory of the current script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Construct the full path to the JSON file
+    full_path = os.path.join(script_dir, path)
+    with open(full_path) as file:
         return json.load(file)
 
 
@@ -75,9 +79,8 @@ def get_output_separator(long: bool) -> str:
     
     return ' '
 
-def main(all: bool = False, long: bool = False, reversed: bool = False,
-         time_ordered: bool = False, filter: Optional[str] = "", path: str = "") -> None:
-    """Main function to list the filesystem contents."""
+def list_filesystem(all: bool, long: bool, reversed: bool, time_ordered: bool, filter: Optional[str], path: str = "") -> None:
+    """Core logic to list the filesystem contents."""
     filesystem = load_filesystem("structure.json")
     filesystem = navigate_to_path(filesystem, path)
     
@@ -89,15 +92,15 @@ def main(all: bool = False, long: bool = False, reversed: bool = False,
         sub_items = [filesystem]
 
     sub_items = sort_items(sub_items, time_ordered, reversed)
-    sub_items = filter_items(sub_items, filter,  all)
+    sub_items = filter_items(sub_items, filter, all)
     
     separator = get_output_separator(long=long)
     output = separator.join(format_item(x, long) for x in sub_items)
 
     print(output)
 
-
-if __name__ == "__main__":
+def main() -> None:
+    """Main function to handle command-line arguments."""
     parser = argparse.ArgumentParser(description='List contents of a filesystem structure from a JSON file.')
     parser.add_argument('-A', action='store_true', help='Show all files')
     parser.add_argument('-l', action='store_true', help='Use a long listing format')
@@ -108,4 +111,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    main(all=args.A, long=args.l, reversed=args.r, time_ordered=args.t, filter=args.filter, path=args.path)
+    # Call the logic function with parsed arguments
+    list_filesystem(all=args.A, long=args.l, reversed=args.r, time_ordered=args.t, filter=args.filter, path=args.path)
+
+# The entry point for the script
+if __name__ == "__main__":
+    main()
