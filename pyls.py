@@ -107,8 +107,5 @@ if __name__ == "__main__":
     parser.add_argument('path', type=str, nargs='?', default='', help='Path to list contents of')
 
     args = parser.parse_args()
-    
-    if args.filter and args.filter not in ("dir", "file"):
-        print(f"{args.filter} is not a valid filter criteria. Available filters are 'dir' and 'file'")
 
     main(all=args.A, long=args.l, reversed=args.r, time_ordered=args.t, filter=args.filter, path=args.path)
