@@ -6,7 +6,7 @@ This project provides a command-line tool to list the contents of a filesystem s
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/repository.git
+   git clone https://github.com/Federaffo/pyls.git
    cd repository
    ```
 
