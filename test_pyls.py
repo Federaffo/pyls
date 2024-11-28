@@ -60,12 +60,20 @@ mock_filesystem = {
     ]
 }
 
+def test_main():
+    with patch("builtins.open", mock_open(read_data=json.dumps(mock_filesystem))), \
+        patch("builtins.print") as mock_print:
+        main(all=False, long=False, reversed=False, time_ordered=False, filter="")
+        mock_print.assert_called_once_with(
+            "LICENSE README.md ast go.mod lexer main.go parser token"
+        )
+
 def test_main_all_files():
     with patch("builtins.open", mock_open(read_data=json.dumps(mock_filesystem))), \
         patch("builtins.print") as mock_print:
         main(all=True, long=False, reversed=False, time_ordered=False, filter="")
         mock_print.assert_called_once_with(
-            ".gitignore LICENSE README.md ast go.mod lexer main.go parser token "
+            ".gitignore LICENSE README.md ast go.mod lexer main.go parser token"
         )
 
 
@@ -74,7 +82,7 @@ def test_main_filter_files():
     with patch("builtins.open", mock_open(read_data=json.dumps(mock_filesystem))), \
         patch("builtins.print") as mock_print:
         main(all=False, long=False, reversed=False, time_ordered=False, filter="file")
-        mock_print.assert_called_once_with("LICENSE README.md go.mod main.go ")
+        mock_print.assert_called_once_with("LICENSE README.md go.mod main.go")
 
 def test_human_readable():
     assert human_readable(1024) == "1K"
@@ -86,7 +94,7 @@ def test_main_filter_directories():
     with patch("builtins.open", mock_open(read_data=json.dumps(mock_filesystem))), \
         patch("builtins.print") as mock_print:
         main(all=False, long=False, reversed=False, time_ordered=False, filter="dir")
-        mock_print.assert_called_once_with("ast lexer parser token ")
+        mock_print.assert_called_once_with("ast lexer parser token")
 
 def test_main_long_listing():
     with patch("builtins.open", mock_open(read_data=json.dumps(mock_filesystem))), \
@@ -100,7 +108,7 @@ def test_main_long_listing():
             "drwxr-xr-x    4K Nov 14 10:51 lexer\n"
             "-rw-r--r--    74 Nov 14 09:27 main.go\n"
             "drwxr-xr-x    4K Nov 17 08:21 parser\n"
-            "-rw-r--r--    4K Nov 14 10:27 token\n"
+            "-rw-r--r--    4K Nov 14 10:27 token"
         )
 
 def test_main_reversed_order():
@@ -108,7 +116,7 @@ def test_main_reversed_order():
         patch("builtins.print") as mock_print:
         main(all=False, long=False, reversed=True, time_ordered=False, filter="")
         mock_print.assert_called_once_with(
-            "token parser main.go lexer go.mod ast README.md LICENSE "
+            "token parser main.go lexer go.mod ast README.md LICENSE"
         )
 
 def test_main_time_ordered():
@@ -116,5 +124,5 @@ def test_main_time_ordered():
         patch("builtins.print") as mock_print:
         main(all=False, long=False, reversed=False, time_ordered=True, filter="")
         mock_print.assert_called_once_with(
-            "LICENSE README.md go.mod main.go token lexer ast parser "
+            "LICENSE README.md go.mod main.go token lexer ast parser"
         )
