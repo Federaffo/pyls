@@ -29,7 +29,7 @@ def navigate_to_path(filesystem: Dict[str, any], path: str) -> Optional[Dict[str
     """Navigate to a specific path within the filesystem structure."""
     if path in ("", "."):
         return filesystem
-    
+
     parts = path.strip('./').split('/')
     for part in parts:
         sub_items = filesystem.get("contents", [])
@@ -55,7 +55,7 @@ def format_item(item: Dict[str, any], long: bool) -> str:
     size = human_readable(item.get("size"))
     modified_time = datetime.datetime.fromtimestamp(item.get("time_modified")).strftime('%b %d %H:%M')
     permissions = item.get("permissions")
-    
+
     if long:
         return f"{permissions} {size:>5} {modified_time} {name}"
     return name
@@ -73,31 +73,35 @@ def filter_items(sub_items: List[Dict[str, any]], filter: Optional[str], all: bo
         return [x for x in sub_items if not x.get("contents")]
     return sub_items
 
+
 def get_output_separator(long: bool) -> str:
     if long:
         return '\n'
-    
+
     return ' '
 
-def list_filesystem(all: bool, long: bool, reversed: bool, time_ordered: bool, filter: Optional[str], path: str = "") -> None:
+
+def list_filesystem(all: bool, long: bool, reversed: bool, time_ordered: bool,
+                    filter: Optional[str], path: str = "") -> None:
     """Core logic to list the filesystem contents."""
     filesystem = load_filesystem("structure.json")
     filesystem = navigate_to_path(filesystem, path)
-    
+
     if filesystem is None:
         return
-    
+
     sub_items = filesystem.get("contents", None)
     if sub_items is None and path:
         sub_items = [filesystem]
 
     sub_items = sort_items(sub_items, time_ordered, reversed)
     sub_items = filter_items(sub_items, filter, all)
-    
+
     separator = get_output_separator(long=long)
     output = separator.join(format_item(x, long) for x in sub_items)
 
     print(output)
+
 
 def main() -> None:
     """Main function to handle command-line arguments."""
@@ -106,13 +110,16 @@ def main() -> None:
     parser.add_argument('-l', action='store_true', help='Use a long listing format')
     parser.add_argument('-r', action='store_true', help='Reverse the order of the list')
     parser.add_argument('-t', action='store_true', help='Sort by time modified')
-    parser.add_argument('--filter', type=str, choices=['dir', 'file'], help='Filter by file or directory name')
+    parser.add_argument('--filter', type=str, choices=['dir', 'file'],
+                        help='Filter by file or directory name')
     parser.add_argument('path', type=str, nargs='?', default='', help='Path to list contents of')
 
     args = parser.parse_args()
 
     # Call the logic function with parsed arguments
-    list_filesystem(all=args.A, long=args.l, reversed=args.r, time_ordered=args.t, filter=args.filter, path=args.path)
+    list_filesystem(all=args.A, long=args.l, reversed=args.r,
+                    time_ordered=args.t, filter=args.filter, path=args.path)
+
 
 # The entry point for the script
 if __name__ == "__main__":
